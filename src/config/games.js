@@ -3,13 +3,6 @@ const classicLogo = 'https://logos-world.net/wp-content/uploads/2021/02/World-of
 const tbcLogo = 'https://upload.wikimedia.org/wikipedia/en/8/82/WoW_Burning_Crusade_Logo.png';
 const wotlkLogo = 'https://logos-world.net/wp-content/uploads/2021/02/World-of-Warcraft-Wrath-of-the-Lich-King-Logo.png';
 
-// Import local assets
-// Note: In a real app, these imports might need to be handled differently or passed in
-// For now, we'll assume these assets are available or use placeholders if imports fail
-// The calling component will likely need to pass some of these or we keep them here if the bundler supports it.
-// Since this is a config file, imports might not work if it's just a JS file not processed by Vite/Webpack in the same way for assets.
-// However, in Vite/Webpack, importing assets in JS files is standard.
-
 import classicArt from '../assets/1.12.png';
 import tbcArt from '../assets/2.4.3.png';
 import wotlkArt from '../assets/3.3.5.png';
