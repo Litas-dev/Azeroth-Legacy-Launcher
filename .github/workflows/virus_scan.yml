@@ -16,6 +16,6 @@ jobs:
       - name: Scan for Viruses (ClamAV)
         uses: djdefi/gitavscan@main
         with:
-          # Scan only current files (remove 'full' option for faster scan)
-          # To scan history too, use: full: '--full'
+          # Scan full history to check all commits
+          full: '--full'
           fail-action: true
