@@ -31,7 +31,7 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
 </div>
 <br/>
 
-### 🛡️ Security & Integrity (New in v3.0)
+### 🛡️ Security & Integrity (New in v3)
 *   **ASAR Code Verification**: Unlike standard launchers that only check the `.exe`, we verify the cryptographic hash of the internal `app.asar` code archive.
 *   **Real-Time Dashboard**: A dedicated security status card in the "About" section provides instant feedback (Secure/Warning/Danger).
 *   **Active Threat Monitoring**: Immediate visual alerts on the sidebar if any integrity mismatch is detected.
