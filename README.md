@@ -93,7 +93,7 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
     ```bash
     npm run build
     ```
-    The output executable will be in the `dist_v3.0.1_final/` directory.
+    The output executable will be in the `dist_v3.0.3_final/` directory.
 
 ## 🤝 Contributing
 
