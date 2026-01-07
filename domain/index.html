@@ -99,8 +99,8 @@
                     </p>
                     <div class="hero-stats">
                         <div class="stat">
-                            <span class="stat-value">100%</span>
-                            <span class="stat-label">Open Source</span>
+                            <span class="stat-value" id="total-downloads">Loading...</span>
+                            <span class="stat-label">Total Downloads</span>
                         </div>
                         <div class="stat">
                             <span class="stat-value">3+</span>
@@ -222,6 +222,38 @@
             </div>
         </section>
 
+        <section id="support" class="support-section">
+            <div class="container">
+                <div class="section-header">
+                    <h3>Support Development</h3>
+                    <p>Help keep Relictum Launcher ad-free and constantly updated.</p>
+                </div>
+                <div class="donation-options">
+                    <div class="donation-card paypal">
+                        <div class="icon-box">
+                            <i data-lucide="heart"></i>
+                        </div>
+                        <h4>PayPal</h4>
+                        <p>Support the developer directly via PayPal.</p>
+                        <a href="https://paypal.me/KostelioKlausimynas" target="_blank" class="btn-primary" style="width: 100%; justify-content: center;">
+                            <i data-lucide="heart"></i> Donate
+                        </a>
+                    </div>
+                    <div class="donation-card crypto">
+                        <div class="icon-box">
+                            <i data-lucide="coins"></i>
+                        </div>
+                        <h4>Dogecoin</h4>
+                        <p>Donate anonymously with crypto.</p>
+                        <div class="crypto-address" onclick="navigator.clipboard.writeText('D8rQ9Rq2pnraaXf8PvhCPUMkYcNzsRnXLC'); this.style.borderColor='var(--primary)'; setTimeout(() => this.style.borderColor='rgba(255,255,255,0.1)', 1000);" title="Click to Copy">
+                            <code>D8rQ9Rq2pnraaXf8PvhCPUMkYcNzsRnXLC</code>
+                            <i data-lucide="copy" class="copy-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="legal-disclaimer">
             <div class="container">
                 <h4>Important Legal Notice</h4>
@@ -250,8 +282,8 @@
             </div>
             <div class="footer-col">
                 <h5>Legal</h5>
-                <a href="#">Terms of Service</a>
-                <a href="#">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="privacy.html">Privacy Policy</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -295,6 +327,49 @@
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
+            }
+        });
+
+        // Fetch total downloads with fallback
+        document.addEventListener('DOMContentLoaded', async function() {
+            const statElement = document.getElementById('total-downloads');
+            if (!statElement) return;
+
+            try {
+                // Try Shields.io first (fastest)
+                const response = await fetch('https://img.shields.io/github/downloads/Litas-dev/Relictum-Launcher/total.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.value) {
+                        statElement.innerText = data.value;
+                        return;
+                    }
+                }
+                throw new Error('Shields.io data invalid');
+            } catch (e) {
+                console.warn('Shields.io fetch failed, trying GitHub API...', e);
+                
+                // Fallback to GitHub API
+                try {
+                    const response = await fetch('https://api.github.com/repos/Litas-dev/Relictum-Launcher/releases');
+                    if (response.ok) {
+                        const releases = await response.json();
+                        let totalDownloads = 0;
+                        releases.forEach(release => {
+                            if (release.assets) {
+                                release.assets.forEach(asset => {
+                                    totalDownloads += asset.download_count;
+                                });
+                            }
+                        });
+                        statElement.innerText = totalDownloads > 0 ? totalDownloads.toLocaleString() : "180+";
+                    } else {
+                        statElement.innerText = "180+"; // Ultimate fallback
+                    }
+                } catch (err) {
+                    console.error('GitHub API failed', err);
+                    statElement.innerText = "180+"; // Ultimate fallback
+                }
             }
         });
 

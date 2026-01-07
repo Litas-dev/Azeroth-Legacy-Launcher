@@ -21,7 +21,7 @@ let downloadedInstallerPath = null;
 
 // --- Configuration ---
 const SECURITY_CHECK_ENABLED = true;
-const SECURITY_ENDPOINT = 'https://raw.githubusercontent.com/Litas-dev/Relictum-Launcher/main/security.json';
+const SECURITY_ENDPOINT = 'https://raw.githubusercontent.com/Litas-dev/Relictum-Launcher/refs/heads/main/security.json';
 
 // --- Application Logic ---
 function createWindow() {
