@@ -2,7 +2,8 @@ import React from 'react';
 import styles from './Dashboard.module.css';
 import { games } from '../../config/games';
 import ipcRenderer from '../../utils/ipc';
-import { Users, ExternalLink } from 'lucide-react';
+import { Users } from 'lucide-react';
+import titleImage from '../../assets/logo-new-white.png';
 
 const Dashboard = ({ games, onGameSelect }) => {
   // Helper: Retrieve game icon from configuration
@@ -22,17 +23,15 @@ const Dashboard = ({ games, onGameSelect }) => {
   return (
     <div className={styles.dashboardView}>
       <div className={styles.heroSection}>
-        <div className={styles.heroBadge}>WELCOME TO</div>
-        <h1 className={styles.title}>RELICTUM LAUNCHER</h1>
+        <img src={titleImage} alt="Relictum Logo" className={styles.titleImage} />
         <p className={styles.heroDescription}>
-          A new experience with private servers. <br/>
-          Seamlessly manage your clients, addons, and gameplay in one unified hub.
+          A modern, secure launcher built for gaming. <br/>
+          Manage multiple expansions, addons, and settings in one unified hub.
         </p>
 
         <button className={styles.communityButton} onClick={handleJoinCommunity}>
-          <Users size={20} />
-          <span>Join Community</span>
-          <ExternalLink size={16} style={{ opacity: 0.7 }} />
+          <Users className={styles.communityIcon} size={24} />
+          <span className={styles.communityText}>JOIN COMMUNITY</span>
         </button>
 
         <div className={styles.supportedGamesPreview}>

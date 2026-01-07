@@ -60,17 +60,28 @@ const GameDetails = ({
   return (
     <div className={styles.gameView} data-game={activeGame.id}>
       <div className={styles.gameHeader}>
-        <div 
-          className={styles.gameArtWrapper}
-          style={{
-            filter: `drop-shadow(0 0 30px ${activeGame.id === 'tbc' ? 'rgba(40, 255, 60, 0.6)' : 'rgba(0, 140, 255, 0.6)'})`
-          }}
-        >
-          <img 
-            src={activeGame.cardArt || activeGame.icon}  
-            className={styles.gameHeaderArt} 
-            alt={activeGame.name} 
-          />
+        <div className={styles.gameArtWrapper}>
+          <div className={styles.artContainer}>
+            <img 
+              src={activeGame.cardArt || activeGame.icon}  
+              className={styles.gameHeaderArt} 
+              alt={activeGame.name}
+              style={{
+                filter: `drop-shadow(0 0 30px ${
+                  activeGame.id === 'tbc' ? 'rgba(40, 255, 60, 0.6)' : 
+                  activeGame.id === 'classic' ? 'rgba(251, 191, 36, 0.6)' :
+                  'rgba(0, 140, 255, 0.6)'
+                })`
+              }}
+            />
+            <div className={`${styles.overlayIcon} ${styles[`glow_${activeGame.id}`]}`}>
+              <img 
+                src={activeGame.clientIcon} 
+                alt={`${activeGame.shortName} Icon`}
+                className={styles.largeGameIcon}
+              />
+            </div>
+          </div>
         </div>
 
         <div className={styles.gameInfoActions}>
@@ -126,6 +137,8 @@ const GameDetails = ({
           )}
         </div>
       </div>
+
+
     </div>
   );
 };
