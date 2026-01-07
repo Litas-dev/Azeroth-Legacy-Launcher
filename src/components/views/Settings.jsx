@@ -39,7 +39,7 @@ const Settings = ({
 
   const languages = [
     { code: 'en', label: 'settings.english', disabled: false },
-    { code: 'es', label: 'settings.spanish', disabled: true },
+    { code: 'es', label: 'settings.spanish', disabled: false },
     { code: 'ru', label: 'settings.russian', disabled: true },
     { code: 'pt', label: 'settings.portuguese', disabled: true },
     { code: 'de', label: 'settings.german', disabled: true },
@@ -64,7 +64,7 @@ const Settings = ({
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Globe size={14} />
-                <span>{i18n.language === 'en' ? t('settings.english') : 'English'}</span>
+                <span>{languages.find(l => l.code === i18n.language)?.label ? t(languages.find(l => l.code === i18n.language).label) : 'English'}</span>
               </div>
               <ChevronDown size={14} />
             </div>
