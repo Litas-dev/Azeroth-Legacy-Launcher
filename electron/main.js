@@ -837,8 +837,22 @@ ipcMain.handle('get-addons', async (event, gamePath) => {
                     const versionMatch = content.match(/## Version:\s*(.*)/);
 
                     if (titleMatch) {
-                         // Remove color codes like |cffffffffName|r
-                         metadata.title = titleMatch[1].replace(/\|c[0-9a-fA-F]{8}(.*?)\|r/g, '$1').trim(); 
+                         // Remove color codes like |cffffffffName|r and |r
+                         // Also handles cases with missing |r or nested colors
+                         metadata.title = titleMatch[1]
+                             .replace(/\|c[0-9a-fA-F]{8}/g, '') // Remove start tags
+                             .replace(/\|r/g, '')               // Remove end tags
+                             .replace(/\[|\]/g, '')             // Optional: clean brackets if desired, but user issue was colors. 
+                                                                // Actually, let's stick to colors first.
+                             .trim();
+                         
+                         // Re-running clean just in case brackets were intended to be kept, 
+                         // but usually addons use brackets for [Category] which might be fine.
+                         // The screenshot showed |c...[... so removing color code is key.
+                         metadata.title = titleMatch[1]
+                             .replace(/\|c[0-9a-fA-F]{8}/g, '')
+                             .replace(/\|r/g, '')
+                             .trim();
                     }
                     if (authorMatch) metadata.author = authorMatch[1].trim();
                     if (versionMatch) metadata.version = versionMatch[1].trim();
@@ -846,6 +860,18 @@ ipcMain.handle('get-addons', async (event, gamePath) => {
                     console.error(`Error parsing TOC for ${folder}:`, e);
                 }
             }
+
+            // Check for Relictum metadata (link to browser)
+            const metaPath = path.join(addonPath, '.relictum.json');
+            if (fs.existsSync(metaPath)) {
+                try {
+                    const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+                    if (meta.detailUrl) metadata.detailUrl = meta.detailUrl;
+                } catch (e) {
+                    console.error(`Error parsing metadata for ${folder}:`, e);
+                }
+            }
+
             return metadata;
         });
 
@@ -1078,6 +1104,35 @@ ipcMain.handle('install-warperia-addon', async (event, { gamePath, detailUrl, do
 
         const zip = new AdmZip(zipPath);
         zip.extractAllTo(addonsPath, true);
+
+        // Track installed folders for metadata
+        const zipEntries = zip.getEntries();
+        const installedFolders = new Set();
+        zipEntries.forEach(entry => {
+            const parts = entry.entryName.split('/');
+            // If it's a folder or a file inside a folder, the first part is the top-level folder
+            if (parts.length > 0 && parts[0]) {
+                installedFolders.add(parts[0]);
+            }
+        });
+
+        // Write metadata to each installed folder
+        installedFolders.forEach(folder => {
+            const folderPath = path.join(addonsPath, folder);
+            const metaPath = path.join(folderPath, '.relictum.json');
+            try {
+                // Only write if it is a directory
+                if (fs.existsSync(folderPath) && fs.lstatSync(folderPath).isDirectory()) {
+                    fs.writeFileSync(metaPath, JSON.stringify({
+                        source: 'warperia',
+                        detailUrl: detailUrl,
+                        installDate: new Date().toISOString()
+                    }, null, 2));
+                }
+            } catch (e) {
+                console.error(`Failed to write metadata for ${folder}:`, e);
+            }
+        });
         
         // Cleanup
         fs.unlinkSync(zipPath);
