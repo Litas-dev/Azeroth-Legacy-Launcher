@@ -38,7 +38,7 @@
     "appId": "com.relictum.launcher",
     "productName": "Relictum Launcher",
     "directories": {
-      "output": "dist_v3.3.1_final"
+      "output": "dist_v3.3.1_new"
     },
     "files": [
       "dist-electron/**/*",

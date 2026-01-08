@@ -15,8 +15,12 @@ async function main() {
 
   try {
     const img = await Jimp.read(pngPath);
+    console.log(`Original size: ${img.bitmap.width}x${img.bitmap.height}`);
+    
     // Auto-crop transparent padding to avoid tiny-looking icons
-    img.autocrop({ tolerance: 0.0001, cropOnlyFrames: false });
+    img.autocrop({ tolerance: 0.01, cropOnlyFrames: false }); // Increased tolerance
+    console.log(`Cropped size: ${img.bitmap.width}x${img.bitmap.height}`);
+
     // Ensure square canvas
     const size = Math.max(img.bitmap.width, img.bitmap.height);
     const canvas = new Jimp(size, size, 0x00000000);
@@ -25,8 +29,9 @@ async function main() {
     canvas.composite(img, x, y);
 
     // Save a high-res temporary PNG for ICO generation
+    // Windows icons are max 256x256 usually, but higher input is fine.
     const tmpPng = path.resolve(__dirname, '../build/icon.tmp.png');
-    await canvas.resize(1024, 1024).writeAsync(tmpPng);
+    await canvas.resize(256, 256, Jimp.RESIZE_BICUBIC).writeAsync(tmpPng);
 
     const icoBuffer = await pngToIco(tmpPng);
     fs.writeFileSync(outIcoPath, icoBuffer);
