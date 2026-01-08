@@ -8,7 +8,7 @@
 *Supports 1.12.1 • 2.4.3 • 3.3.5a*
 
 
-[Download Latest Release](https://github.com/Litas-dev/Relictum-Launcher/releases) • [Report Bug](https://github.com/Litas-dev/Relictum-Launcher/issues) • ![Downloads](https://img.shields.io/github/downloads/Litas-dev/Relictum-Launcher/total?label=Downloads&logo=github&color=blue)
+[Download Latest Release](https://github.com/Litas-dev/Relictum-Launcher/releases) • [Report Bug](https://github.com/Litas-dev/Relictum-Launcher/issues) • ![Downloads](https://img.shields.io/github/downloads/Litas-dev/Relictum-Launcher/total?label=Downloads&logo=github&color=blue) • [![Virus Scan](https://github.com/Litas-dev/Relictum-Launcher/actions/workflows/virus_scan.yml/badge.svg)](https://github.com/Litas-dev/Relictum-Launcher/actions/workflows/virus_scan.yml)
 
 </div>
 
