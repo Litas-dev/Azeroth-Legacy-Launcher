@@ -28,6 +28,7 @@ import { useGameLibrary } from './hooks/useGameLibrary';
 import { useSettings } from './hooks/useSettings';
 import { useDownloader } from './hooks/useDownloader';
 import { useAddons } from './hooks/useAddons';
+import { useUser } from './hooks/useUser';
 
 // Assets
 import wotlkTheme from './assets/music/wotlk-theme.mp3';
@@ -80,6 +81,7 @@ function App() {
   // Initialize Hooks
   const settings = useSettings();
   const gameLibrary = useGameLibrary();
+  const user = useUser();
   
   const downloader = useDownloader({
     activeGameId: gameLibrary.activeGameId,
@@ -337,6 +339,7 @@ function App() {
               isPlaying={gameLibrary.isPlaying}
               downloadState={downloader.downloadState}
               settings={settings}
+              user={user}
             />
           )}
 

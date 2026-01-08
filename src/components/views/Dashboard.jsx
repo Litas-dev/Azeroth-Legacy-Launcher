@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styles from './Dashboard.module.css';
 import { games } from '../../config/games';
@@ -7,8 +7,32 @@ import { Users } from 'lucide-react';
 import titleImage from '../../assets/logo-new-white.png';
 import discordIcon from '../../assets/discord.png';
 
-const Dashboard = ({ games, onGameSelect, settings }) => {
+const Dashboard = ({ games, onGameSelect, settings, user }) => {
   const { t } = useTranslation();
+  
+  // User Profile Edit State
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState('');
+
+  const handleStartEdit = () => {
+    if (user && user.userProfile) {
+      setTempName(user.userProfile.username);
+      setIsEditingName(true);
+    }
+  };
+
+  const handleSaveName = () => {
+    if (user && user.updateUsername) {
+      user.updateUsername(tempName);
+    }
+    setIsEditingName(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSaveName();
+    if (e.key === 'Escape') setIsEditingName(false);
+  };
+
   const enableGlows = settings?.enableGlowEffects !== false; // Default to true if undefined
   const glowClass = enableGlows ? '' : styles.disableGlow;
 
@@ -29,6 +53,35 @@ const Dashboard = ({ games, onGameSelect, settings }) => {
   return (
     <div className={styles.dashboardView}>
       <div className={styles.heroSection}>
+        {/* Welcome Message */}
+        {user && user.userProfile && (
+          <div className={styles.welcomeContainer}>
+            <span className={styles.welcomeText}>{t('dashboard.welcome_back', 'Welcome back')}, </span>
+            <div className={styles.userTag}>
+              {isEditingName ? (
+                <input 
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onBlur={handleSaveName}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                  className={styles.nameInput}
+                  maxLength={16}
+                />
+              ) : (
+                <span 
+                  className={styles.username} 
+                  onClick={handleStartEdit}
+                  title={t('dashboard.click_to_edit', 'Click to edit name')}
+                >
+                  {user.userProfile.username}
+                </span>
+              )}
+              <span className={styles.discriminator}>#{user.userProfile.discriminator}</span>
+            </div>
+          </div>
+        )}
+
         <img src={titleImage} alt="Relictum Logo" className={styles.titleImage} />
         <p className={styles.heroDescription}>
           <Trans i18nKey="dashboard.hero_description">

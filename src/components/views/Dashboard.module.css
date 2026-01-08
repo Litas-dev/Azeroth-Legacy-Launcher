@@ -23,6 +23,65 @@
   animation: fadeInUp 0.8s ease-out;
 }
 
+.welcomeContainer {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  animation: fadeIn 1s ease-out;
+}
+
+.welcomeText {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.userTag {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.username {
+  cursor: pointer;
+  transition: color 0.2s;
+  border-bottom: 1px dashed transparent;
+}
+
+.username:hover {
+  color: var(--primary-gold);
+  border-bottom-color: var(--primary-gold);
+}
+
+.discriminator {
+  color: var(--text-muted);
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.nameInput {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--primary-gold);
+  color: var(--primary-gold);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 0 5px;
+  border-radius: 4px;
+  width: 200px;
+  text-align: center;
+  outline: none;
+}
+
 .heroBadge {
   margin-bottom: 20px;
   font-size: 11px;
@@ -48,229 +107,120 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
-  text-transform: uppercase;
 }
 
 .titleImage {
-  position: relative;
-  display: block;
-  width: auto;
-  max-width: 800px; /* Increased to allow larger size */
-  height: 140px; 
-  margin: 0 auto 10px auto;
-  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
-  opacity: 1;
-  z-index: 2;
-  top: auto;
-  left: auto;
-  transform: none;
-  object-fit: contain;
+  max-width: 800px;
+  width: 90%;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+  transition: transform 0.3s ease;
+}
+
+.titleImage:hover {
+  transform: scale(1.02);
 }
 
 .heroDescription {
-  max-width: 700px;
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 30px;
   line-height: 1.6;
-  font-weight: 400;
-  margin-bottom: 50px;
-  margin-top: 5px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-  position: relative;
-  z-index: 2;
-  letter-spacing: 0.5px;
 }
 
-.communityButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: linear-gradient(180deg, rgba(30, 60, 100, 0.9), rgba(10, 20, 40, 0.95));
-  padding: 14px 40px;
-  border: 1px solid rgba(100, 200, 255, 0.3);
-  border-top: 1px solid rgba(100, 200, 255, 0.6);
-  border-bottom: 1px solid rgba(100, 200, 255, 0.1);
-  border-radius: 4px;
+.discordIconContainer {
+  margin-bottom: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 50px; /* Push cards down to keep separation */
-  margin-top: 0; 
-  position: relative;
-  overflow: hidden;
-  z-index: 10;
-  min-width: 240px;
-  box-shadow: 
-    0 0 15px rgba(0, 150, 255, 0.1),
-    inset 0 0 20px rgba(0, 150, 255, 0.05);
+  transition: transform 0.2s;
+  display: flex;
+  justify-content: center;
 }
 
-.communityButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.1) 50%, 
-    transparent 100%);
-  transform: translateX(-100%);
-  transition: transform 0.5s;
-}
-
-.communityButton:hover::before {
-  transform: translateX(100%);
-}
-
-.communityButton:hover {
-  transform: translateY(-2px);
-  border-color: rgba(100, 200, 255, 0.8);
-  box-shadow: 
-    0 0 25px rgba(0, 150, 255, 0.3),
-    inset 0 0 10px rgba(0, 150, 255, 0.2);
-  background: linear-gradient(180deg, rgba(40, 80, 130, 0.95), rgba(20, 30, 60, 0.98));
-}
-
-.communityText {
-  color: #e0f0ff;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
-}
-
-.communityIcon {
-  color: #00c6ff;
-  filter: drop-shadow(0 0 5px rgba(0, 198, 255, 0.8));
+.discordIconContainer:hover {
+  transform: scale(1.1);
 }
 
 .supportedGamesPreview {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 30px;
-  padding: 0; /* Removed padding to save space */
-  width: 100%;
-  flex-wrap: nowrap;
-  margin-top: 5px; /* Reduced margin */
+  gap: 40px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .gameIconCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0; /* No gap */
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  cursor: pointer;
-  padding: 5px; /* Minimal padding */
-  border-radius: 15px;
-  /* Restore background and border as requested */
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  width: auto;
-  min-width: 160px; /* Keep it compact */
+  gap: 15px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .gameIconCard:hover {
   transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.discordIconContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  cursor: pointer;
-  margin-bottom: 60px;
-  /* No background/border */
-}
-
-.discordIconContainer:hover {
-  transform: translateY(-5px);
-}
-
-.discordIconContainer:hover .gameIcon {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 30px rgba(114, 137, 218, 0.8)) brightness(1.2); /* Discord Blue/Purple Glow */
 }
 
 .iconGlow {
-  width: 190px; /* Big enough for the icon */
-  height: 190px;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0; 
-  transition: all 0.5s ease;
   position: relative;
-  background: transparent; 
-  box-shadow: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* Glow effects for each game type - Applied to the image wrapper or image itself via drop-shadow */
+.disableGlow .iconGlow {
+    box-shadow: none !important;
+    animation: none !important;
+}
+
+/* Specific Glow Colors on Hover */
+.gameIconCard:hover .iconGlowClassic {
+  box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+  border-color: rgba(255, 165, 0, 0.5);
+}
+
+.gameIconCard:hover .iconGlowTbc {
+  box-shadow: 0 0 30px rgba(50, 205, 50, 0.3);
+  border-color: rgba(50, 205, 50, 0.5);
+}
+
+.gameIconCard:hover .iconGlowWotlk {
+  box-shadow: 0 0 30px rgba(0, 191, 255, 0.3);
+  border-color: rgba(0, 191, 255, 0.5);
+}
 
 .gameIcon {
-  width: 190px; /* Large icons (approx 50% bigger than 130px) */
-  height: 190px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  transition: all 0.5s ease;
-  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+  filter: grayscale(0.5);
+  transition: all 0.3s ease;
 }
 
 .gameIconCard:hover .gameIcon {
+  filter: grayscale(0) drop-shadow(0 0 10px rgba(255,255,255,0.3));
   transform: scale(1.1);
-}
-
-/* Classic Glow */
-.gameIconCard:hover .gameIconClassic {
-  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)) brightness(1.2);
-}
-
-/* TBC Glow */
-.gameIconCard:hover .gameIconTbc {
-  filter: drop-shadow(0 0 30px rgba(50, 205, 50, 0.6)) brightness(1.2);
-}
-
-/* WotLK Glow */
-.gameIconCard:hover .gameIconWotlk {
-  filter: drop-shadow(0 0 30px rgba(0, 191, 255, 0.8)) brightness(1.2); /* Blue ice glow */
 }
 
 .versionLabel {
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2px;
-  opacity: 0.6;
-  transition: all 0.3s ease;
-  margin-top: 0; /* Removed margin */
+  color: var(--text-muted);
+  transition: color 0.3s;
 }
 
-.gameIconCard:hover .versionLabel {
-  opacity: 1;
-  transform: scale(1.1);
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
-}
-
-/* Removed redundant iconGlow styles since we handle glows on hover now */
-/* Removed redundant gameIcon styles */
-
-.versionLabelClassic {
-  color: #e8c778;
-}
-
-.versionLabelTbc {
-  color: #4aff4a;
-}
-
-.versionLabelWotlk {
-  color: #00c6ff;
-}
+.gameIconCard:hover .versionLabelClassic { color: #FFA500; }
+.gameIconCard:hover .versionLabelTbc { color: #32CD32; }
+.gameIconCard:hover .versionLabelWotlk { color: #00BFFF; }
 
 @keyframes fadeInUp {
   from {
@@ -283,13 +233,7 @@
   }
 }
 
-/* Disable Glow - Stronger Specificity to override all game icons */
-.disableGlow:hover .gameIcon,
-.gameIconCard.disableGlow:hover .gameIcon,
-.gameIconCard.disableGlow:hover .gameIconClassic,
-.gameIconCard.disableGlow:hover .gameIconTbc,
-.gameIconCard.disableGlow:hover .gameIconWotlk,
-.discordIconContainer.disableGlow:hover .gameIcon {
-  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)) !important;
-  transform: none !important; /* Also disable the zoom if desired, or remove this line to keep zoom */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -15,6 +15,8 @@
     "join_discord": "Join Discord"
   },
   "dashboard": {
+    "welcome_back": "Welcome back",
+    "click_to_edit": "Click to edit name",
     "hero_description": "A modern, secure launcher built for gaming. <1/> Manage multiple expansions, addons, and settings in one unified hub.",
     "join_community": "JOIN COMMUNITY"
   },
