@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Home, Layers, Plus, Puzzle, Settings, Info, AlertTriangle, Music, Download, Globe, Heart } from 'lucide-react';
 import { games } from '../../config/games';
+import ipcRenderer from '../../utils/ipc';
 import azerothLogo from '../../assets/logo-new-white.png';
 import styles from './Sidebar.module.css';
 
@@ -160,9 +161,13 @@ const Sidebar = ({
                 <div className={styles.versionInfo}>
                     <span className={styles.versionText}>v{appVersion}</span>
                     {updateInfo && updateInfo.updateAvailable && (
-                        <a href={updateInfo.url} target="_blank" rel="noreferrer" className={styles.updateBadge} title={t('sidebar.update_available')}>
+                        <button 
+                            className={`${styles.updateBadge} ${styles.updateButton}`} 
+                            title={`${t('sidebar.update_available')} (v${updateInfo.latestVersion || updateInfo.version || '?'})`}
+                            onClick={() => ipcRenderer.send('download-update')}
+                        >
                             <Download size={12} />
-                        </a>
+                        </button>
                     )}
                 </div>
             </div>

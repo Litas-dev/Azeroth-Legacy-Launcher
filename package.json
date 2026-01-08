@@ -1,7 +1,7 @@
 {
   "name": "relictum-launcher",
   "private": true,
-  "version": "3.3.2",
+  "version": "3.4.2",
   "author": "Relictum",
   "description": "The ultimate, secure, and modern launcher for private servers.",
   "repository": {
@@ -13,11 +13,13 @@
     "dev": "concurrently -k \"vite\" \"wait-on tcp:5174 && electron .\"",
     "prebuild": "node scripts/generate-icon.js",
     "build": "vite build && electron-builder",
+    "publish": "vite build && electron-builder --publish always",
     "preview": "vite preview"
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
     "adm-zip": "^0.5.16",
+    "electron-updater": "^6.7.3",
     "framer-motion": "^10.16.4",
     "i18next": "^25.7.4",
     "i18next-browser-languagedetector": "^8.2.0",
@@ -25,7 +27,8 @@
     "node-7z": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-i18next": "^16.5.1"
+    "react-i18next": "^16.5.1",
+    "semver": "^7.7.3"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",
@@ -41,14 +44,19 @@
     "appId": "com.relictum.launcher",
     "productName": "Relictum Launcher",
     "copyright": "Copyright © 2026 Relictum",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Litas-dev",
+        "repo": "Relictum-Launcher"
+      }
+    ],
     "directories": {
-      "output": "dist_v3.3.2"
+      "output": "dist_v3.4.2"
     },
     "files": [
       "electron/**/*",
-      "dist-electron/**/*",
-      "dist_renderer/**/*",
-      "electron/**/*"
+      "dist_renderer/**/*"
     ],
     "win": {
       "target": "nsis",

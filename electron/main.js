@@ -1,9 +1,11 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const { spawn } = require('child_process');
 const crypto = require('crypto'); // Added for integrity check
 const https = require('https');
 const http = require('http');
+const semver = require('semver');
 
 // Suppress Electron security warnings in development
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
@@ -54,89 +56,6 @@ function createWindow() {
   // Ensure window is not resizable when restored
   win.on('unmaximize', () => {
       win.setResizable(false);
-  });
-}
-
-function createSocialWindow() {
-  if (socialWindow) {
-    socialWindow.focus();
-    return;
-  }
-
-  const win = new BrowserWindow({
-    width: 350,
-    height: 600,
-    resizable: false,
-    frame: false,
-    thickFrame: false,
-    backgroundColor: '#1a1a1a',
-    // parent: mainWindow, // REMOVED to allow independent z-ordering
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  socialWindow = win;
-  
-  const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, '../dist_renderer/index.html')}`;
-  const socialUrl = `${startUrl}${startUrl.includes('?') ? '&' : '?'}window=social`;
-  
-  if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-      // In development, we need to load the URL with the hash or query param correctly
-      // The React router logic I added supports BOTH.
-      // But let's stick to the hash for consistency if that's what we are moving to.
-      // However, Vite dev server might prefer query params for initial load.
-      // Let's try loading the hash URL in dev too.
-      win.loadURL('http://localhost:5174/#/social');
-      // win.webContents.openDevTools({ mode: 'detach' });
-  } else {
-      // FIX: Use hash routing for reliable multi-window loading in production
-      // instead of query params which can be stripping by some file protocols
-      const baseUrl = startUrl.split('?')[0]; 
-      win.loadURL(`${baseUrl}#/social`);
-  }
-  
-  win.on('closed', () => {
-    socialWindow = null;
-  });
-}
-
-function createChatWindow(friend) {
-  if (chatWindow) {
-    chatWindow.focus();
-    chatWindow.webContents.send('update-chat-friend', friend);
-    return;
-  }
-
-  const win = new BrowserWindow({
-    width: 400,
-    height: 500,
-    resizable: true,
-    frame: false,
-    thickFrame: true, // Allow resizing
-    backgroundColor: '#1a1a1a',
-    // parent: socialWindow || mainWindow, // REMOVED to allow independent z-ordering
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  chatWindow = win;
-  
-  const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, '../dist_renderer/index.html')}`;
-  const friendParams = `&friendId=${encodeURIComponent(friend.id)}&friendName=${encodeURIComponent(friend.name)}&friendStatus=${encodeURIComponent(friend.status)}`;
-  const chatUrl = `${startUrl}${startUrl.includes('?') ? '&' : '?'}window=chat${friendParams}`;
-  
-  if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-      win.loadURL(`http://localhost:5174?window=chat${friendParams}`);
-  } else {
-      win.loadURL(chatUrl);
-  }
-  
-  win.on('closed', () => {
-    chatWindow = null;
   });
 }
 
@@ -551,148 +470,62 @@ ipcMain.handle('update-realmlist', async (event, { gamePath, content }) => {
     }
 });
 
-// --- Update Check ---
-ipcMain.on('download-update', async (event) => {
-    try {
-        const repoApi = 'https://api.github.com/repos/Litas-dev/Relictum-Launcher/releases/latest';
-        const response = await fetch(repoApi, {
-            headers: { 'User-Agent': 'Warmane-Launcher' }
-        });
-        if (!response.ok) throw new Error('Failed to fetch releases');
-        const data = await response.json();
+// --- AutoUpdater Configuration ---
+autoUpdater.autoDownload = false;
+autoUpdater.logger = console;
 
-        const assets = Array.isArray(data.assets) ? data.assets : [];
-        let installerAsset = null;
-        const isLinux = process.platform === 'linux';
-        const targetExt = isLinux ? '.appimage' : '.exe';
-
-        for (const a of assets) {
-            const name = (a.name || '').toLowerCase();
-            if (name.endsWith(targetExt)) {
-                if (!installerAsset) installerAsset = a;
-                
-                if (isLinux) {
-                    // On Linux, usually just one AppImage, but we take the first valid one
-                } else {
-                    // On Windows, prefer 'setup' or 'installer' over others
-                    if (name.includes('setup') || name.includes('installer')) {
-                        installerAsset = a;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!installerAsset) {
-            if (mainWindow) {
-                mainWindow.webContents.send('updater-message', {
-                    type: 'error',
-                    text: `No ${isLinux ? 'Linux' : 'Windows'} installer asset found in latest release.`,
-                    data: null
-                });
-            }
-            return;
-        }
-
-        const downloadUrl = installerAsset.browser_download_url;
-        const tempDir = app.getPath('temp');
-        const fileName = installerAsset.name || (isLinux ? 'RelictumLauncher.AppImage' : 'WarmaneLauncherSetup.exe');
-        const outPath = path.join(tempDir, fileName);
-
-        if (mainWindow) {
-            mainWindow.webContents.send('updater-message', {
-                type: 'progress',
-                text: 'Starting download...',
-                data: { percent: 0 }
-            });
-        }
-
-        // Use fetch to handle redirects automatically (GitHub releases redirect to S3)
-        const assetResponse = await fetch(downloadUrl);
-        if (!assetResponse.ok) throw new Error(`Download failed: ${assetResponse.status} ${assetResponse.statusText}`);
-
-        const totalBytes = Number(assetResponse.headers.get('content-length') || 0);
-        const fileStream = fs.createWriteStream(outPath);
-        
-        // Read the body stream (Web Streams API)
-        const reader = assetResponse.body.getReader();
-        let downloaded = 0;
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            fileStream.write(Buffer.from(value));
-            downloaded += value.length;
-            
-            if (mainWindow) {
-                const percent = totalBytes > 0 ? Math.min(100, Math.round((downloaded / totalBytes) * 100)) : 0;
-                mainWindow.webContents.send('updater-message', {
-                    type: 'progress',
-                    text: 'Downloading update...',
-                    data: { percent }
-                });
-            }
-        }
-        
-        await new Promise((resolve, reject) => {
-            fileStream.on('finish', resolve);
-            fileStream.on('error', reject);
-            fileStream.end();
-        });
-        
-        downloadedInstallerPath = outPath;
-        if (mainWindow) {
-            mainWindow.webContents.send('updater-message', {
-                type: 'downloaded',
-                text: 'Update downloaded. Ready to install.',
-                data: { path: outPath }
-            });
-        }
-    } catch (e) {
-        console.error('Failed to download update:', e);
-        if (mainWindow) {
-            mainWindow.webContents.send('updater-message', {
-                type: 'error',
-                text: `Download Error: ${e.message} (${e.code || 'NO_CODE'})`,
-                data: null
-            });
-        }
-    }
+// --- AutoUpdater Events ---
+autoUpdater.on('checking-for-update', () => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { type: 'checking', text: 'Checking for updates...' });
 });
 
-ipcMain.on('install-update', async () => {
-    try {
-        if (!downloadedInstallerPath || !fs.existsSync(downloadedInstallerPath)) {
-            if (mainWindow) {
-                mainWindow.webContents.send('updater-message', {
-                    type: 'error',
-                    text: 'Installer not found. Please download again.',
-                    data: null
-                });
-            }
-            return;
-        }
+autoUpdater.on('update-available', (info) => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { 
+        type: 'available', 
+        text: 'Update available.', 
+        data: info 
+    });
+});
 
-        const result = await shell.openPath(downloadedInstallerPath);
-        if (result) {
-            throw new Error(`Failed to open installer: ${result}`);
-        }
-        
-        // Give the installer a moment to start before quitting
-        setTimeout(() => {
-            app.quit();
-        }, 1000);
-    } catch (e) {
-        console.error('Failed to start installer:', e);
-        if (mainWindow) {
-            mainWindow.webContents.send('updater-message', {
-                type: 'error',
-                text: e.message || 'Installer failed to start',
-                data: null
-            });
-        }
-    }
+autoUpdater.on('update-not-available', (info) => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { 
+        type: 'not-available', 
+        text: 'Update not available.', 
+        data: info 
+    });
+});
+
+autoUpdater.on('error', (err) => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { 
+        type: 'error', 
+        text: 'Error in auto-updater: ' + err, 
+        data: err 
+    });
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { 
+        type: 'progress', 
+        text: 'Downloading...', 
+        data: progressObj 
+    });
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    if (mainWindow) mainWindow.webContents.send('updater-message', { 
+        type: 'downloaded', 
+        text: 'Update downloaded', 
+        data: info 
+    });
+});
+
+// --- Update IPC Handlers ---
+ipcMain.on('download-update', () => {
+    autoUpdater.downloadUpdate();
+});
+
+ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
 });
 
 ipcMain.on('open-url', (event, url) => {
@@ -706,50 +539,25 @@ ipcMain.handle('get-app-version', () => {
 });
 
 ipcMain.handle('check-for-updates', async () => {
+    if (!app.isPackaged) {
+        // Mock for dev mode
+        return { updateAvailable: false, currentVersion: app.getVersion() };
+    }
     try {
-        const currentVersion = app.getVersion();
-        const response = await fetch('https://api.github.com/repos/Litas-dev/Relictum-Launcher/releases/latest', {
-            headers: { 'User-Agent': 'Warmane-Launcher' }
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch releases');
-        
-        const data = await response.json();
-        const latestVersion = data.tag_name.replace('v', '');
-        
-        // Simple version comparison (semver-like)
-        const isNewer = (v1, v2) => {
-            const p1 = v1.split('.').map(Number);
-            const p2 = v2.split('.').map(Number);
-            for (let i = 0; i < 3; i++) {
-                if ((p1[i] || 0) > (p2[i] || 0)) return true;
-                if ((p1[i] || 0) < (p2[i] || 0)) return false;
-            }
-            return false;
-        };
-
-        const updateAvailable = isNewer(latestVersion, currentVersion);
-
-        if (mainWindow) {
-            mainWindow.webContents.send('updater-message', {
-                type: updateAvailable ? 'available' : 'not-available',
-                text: updateAvailable ? `New version ${latestVersion} available!` : 'No updates found',
-                data: {
-                    version: latestVersion,
-                    url: data.html_url
-                }
-            });
+        const result = await autoUpdater.checkForUpdates();
+        // result is CheckResult | null
+        if (result && semver.gt(result.updateInfo.version, app.getVersion())) {
+             return {
+                updateAvailable: true,
+                currentVersion: app.getVersion(),
+                latestVersion: result.updateInfo.version
+             };
+        } else {
+             return { updateAvailable: false, currentVersion: app.getVersion() };
         }
-
-        return {
-            updateAvailable,
-            latestVersion,
-            currentVersion,
-            url: data.html_url
-        };
-    } catch (error) {
-        console.error('Update check failed:', error);
-        return { updateAvailable: false, error: error.message };
+    } catch (e) {
+        console.error("AutoUpdater check failed:", e);
+        return { updateAvailable: false, error: e.message, currentVersion: app.getVersion() };
     }
 });
 
