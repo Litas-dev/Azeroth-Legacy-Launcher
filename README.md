@@ -31,7 +31,7 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
 </div>
 <br/>
 
-### 🛡️ Security & Integrity (New in v3)
+### 🛡️ Security & Integrity
 *   **ASAR Code Verification**: Unlike standard launchers that only check the `.exe`, we verify the cryptographic hash of the internal `app.asar` code archive.
 *   **Real-Time Dashboard**: A dedicated security status card in the "About" section provides instant feedback (Secure/Warning/Danger).
 *   **Active Threat Monitoring**: Immediate visual alerts on the sidebar if any integrity mismatch is detected.
@@ -42,7 +42,16 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
 *   **Smart Grouping**: Automatically groups multi-module addons into single, clean entries.
 *   **Local Management**: Easily update or delete your existing addons.
 
-### 🎨 Immersive Experience
+### 🔌 Extensible Plugin System
+*   **Modular Architecture**: Supports dynamic loading of plugins to extend functionality.
+*   **Custom Games**: Plugins can register support for custom servers and expansions beyond the defaults.
+*   **Safe Execution**: Plugins run in a sandboxed environment to ensure launcher stability.
+
+### � Global Localization
+*   **Multi-Language Support**: Fully localized interface available in **English**, **Spanish**, **German**, **Portuguese**, and **Russian**.
+*   **Instant Switching**: Change languages on the fly from the Settings menu.
+
+### �🎨 Immersive Experience
 *   **Integrated Music Player**: Enjoy the iconic soundtracks while you browse.
 *   **Classic Layout**: A refined user interface that pays homage to the original game launcher while using modern glass-morphism effects.
 
@@ -50,13 +59,11 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
 *   **Multi-Version Support**: Built-in support for managing **1.12.1**, **2.4.3**, and **3.3.5a** clients.
 *   **Auto-Locate**: Intelligently finds and verifies existing game installations for any supported version.
 
-### 🌍 Localization (Coming Soon)
-*   **Multi-Language Support**: Architecture for global language support is currently in development. (TBA)
-
 ## 🛠 Tech Stack
 
 *   **Core**: [Electron](https://www.electronjs.org/) (v28)
 *   **Frontend**: [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+*   **Localization**: [i18next](https://www.i18next.com/)
 *   **Security**: SHA-256 Integrity Verification
 *   **Styling**: CSS Modules + Modern CSS3
 *   **Icons**: [Lucide React](https://lucide.dev/)
@@ -82,40 +89,33 @@ It is the first private server launcher to feature **Advanced Integrity Verifica
     cd Relictum-Launcher
     ```
 
-2.  **Install dependencies**
+2.  **Initialize Plugin System (Required)**
+    The repository includes public stubs for the plugin engine. You must enable them to run the app:
+    
+    **Windows (PowerShell):**
+    ```powershell
+    Copy-Item src/utils/PluginLoader.stub.js src/utils/PluginLoader.js
+    Copy-Item src/utils/PluginStore.stub.js src/utils/PluginStore.js
+    ```
+    
+    **Linux/Mac:**
+    ```bash
+    cp src/utils/PluginLoader.stub.js src/utils/PluginLoader.js
+    cp src/utils/PluginStore.stub.js src/utils/PluginStore.js
+    ```
+
+3.  **Install dependencies**
     ```bash
     npm install
     ```
 
-3.  **Run in development mode**
+4.  **Run in development mode**
     ```bash
     npm run dev
     ```
 
-4.  **Build for production**
+5.  **Build for production**
     ```bash
     npm run build
     ```
-    The output executable will be in the `dist_v3.3.1_final/` directory.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 💰 Support
-
-If you find this project helpful and want to support its development, you can donate via Dogecoin:
-
-**Doge:** `D8rQ9Rq2pnraaXf8PvhCPUMkYcNzsRnXLC`
-
-Thanks for your support!
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-## ⚠️ Disclaimer
-
-This project is an unofficial fan creation and is not affiliated with, endorsed, sponsored, or specifically approved by any official game studio. All trademarks are property of their respective owners.
+    The output executable will be in the `dist_v3.4.5/` directory.

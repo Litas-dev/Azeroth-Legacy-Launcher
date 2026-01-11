@@ -16,3 +16,4 @@ build-cache/
 src/utils/PluginLoader.js
 src/utils/PluginStore.js
 plugins/
+plugins.json
