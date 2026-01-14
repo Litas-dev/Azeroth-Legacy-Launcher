@@ -78,6 +78,8 @@ function App() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [hasSetDefaultView, setHasSetDefaultView] = useState(false);
   const lastNavRequestRef = useRef(null);
+  const [hasSidebarOverride, setHasSidebarOverride] = useState(!!(ExtensionStore.getSidebarOverride && ExtensionStore.getSidebarOverride()));
+  const [extensionInitDone, setExtensionInitDone] = useState(false);
 
   // Initialize Hooks
   const settings = useSettings();
@@ -99,6 +101,7 @@ function App() {
           setMusicUrl(override || wotlkTheme);
           setCustomGames(ExtensionStore.getCustomGames());
           setIsSidebarVisible(ExtensionStore.getSidebarVisible());
+          setHasSidebarOverride(!!(ExtensionStore.getSidebarOverride && ExtensionStore.getSidebarOverride()));
           
           // Check for default view override (only once per session or when changed)
           const defaultView = ExtensionStore.getDefaultView();
@@ -269,8 +272,13 @@ function App() {
 
     fetchAppInfo();
 
-    // Initialize Extension System
-    ExtensionLoader.init();
+    (async () => {
+      try {
+        await ExtensionLoader.init();
+      } finally {
+        setExtensionInitDone(true);
+      }
+    })();
 
     // Listen for Extension Toasts
     const handleExtensionToast = (e) => {
@@ -489,7 +497,7 @@ function App() {
               />
             );
           })()
-        ) : (
+        ) : (extensionInitDone && !hasSidebarOverride ? (
         <Sidebar 
           activeView={activeView}
           setActiveView={setActiveView}
@@ -506,19 +514,21 @@ function App() {
           updateInfo={updateInfo}
           customGameNames={customGameNames}
           onRenameGame={handleOpenRename}
-        />)
+        />) : null)
       )}
 
       <div className="main-content" style={!isSidebarVisible ? { width: '100%', left: 0 } : {}}>
-        <TopBar 
-          activeGame={activeGame}
-          serverPing={serverPing}
-          updateInfo={updateInfo}
-          settings={settings}
-          onMinimize={() => ipcRenderer.send('minimize-window')}
-          onMaximize={() => ipcRenderer.send('maximize-window')}
-          onClose={() => ipcRenderer.send('close-window')}
-        />
+        {!hasSidebarOverride && (
+          <TopBar 
+            activeGame={activeGame}
+            serverPing={serverPing}
+            updateInfo={updateInfo}
+            settings={settings}
+            onMinimize={() => ipcRenderer.send('minimize-window')}
+            onMaximize={() => ipcRenderer.send('maximize-window')}
+            onClose={() => ipcRenderer.send('close-window')}
+          />
+        )}
 
         <div className="content-area">
           {activeView === 'dashboard' && (
@@ -552,7 +562,7 @@ function App() {
                   />
                 );
               })()
-            ) : (
+            ) : (!hasSidebarOverride ? (
               <Dashboard 
                 games={games}
                 activeGameId={gameLibrary.activeGameId}
@@ -573,7 +583,7 @@ function App() {
                 settings={settings}
                 user={user}
               />
-            )
+            ) : null )
           )}
 
           {activeView === 'game' && (
@@ -597,7 +607,6 @@ function App() {
             <Settings 
               activeGame={activeGame}
               
-              // Settings Props Mapping
               autoCloseLauncher={settings.autoCloseLauncher}
               toggleAutoClose={settings.toggleAutoClose}
               
